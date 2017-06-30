@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Quotes</title>
+        <meta charset="UTF-8">
+          <style type="text/css">
+          div.quote_box {
+            background-color: lightblue;
+            width: 500px;
+            margin: 5px;
+            padding: 5px;
+          }
+          div.head_box {
+            background-color: lightgray;
+            width: 540px;
+            margin: 5px;
+            padding: 5px;
+            height: 400px;
+            overflow: scroll;
+          }
+          div.form_box {
+            background-color: lightgreen;
+            width: 500px;
+            margin: 5px;
+            padding: 5px;
+          }
+          </style>
+    </head>
+    <body>
+      <div>
+        <a href="/logout">Logout</a>
+      </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{message|safe}}</p>
+            {% endfor %}
+        {% endif %}
+        <h3>Welcome, {{user.alias}}!</h3>
+
+        <h1>Quotable Quotes:</h1>
+        <div class="head_box">
+          {% for quote in quotables %}
+          <div class="quote_box">
+            <p>{{ quote.author }}:<span> {{ quote.quote }}</span></p>
+            <p>Posted by <a href="/user/{{ quote.posted_by.id }}">{{ quote.posted_by.alias }}</a></p>
+            <form action="{% url 'quotes:add_to_faves' %}" method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="quote" value={{ quote.id }}>
+              <button type="submit" name="submit" value="Add">Add To My List</button>
+            </form>
+            <hr>
+          </div>
+          {% endfor %}
+        </div>
+        <br>
+
+        <h1>Your Favorites:</h1>
+        <div class="head_box">
+          {% for fave in favorites %}
+          <div class="quote_box">
+            <p>{{ fave.author }}:<span> {{ fave.quote }}</span></p>
+            <p>Posted by <a href="/user/{{ fave.posted_by.id }}">{{ fave.posted_by.alias }}</a></p>
+            <form action="{% url 'quotes:remove_fave' %}" method="POST">
+              {% csrf_token %}
+              <input type="hidden" name="fave" value={{ fave.id }}>
+              <button type="submit" name="submit" value="Add">Remove From My List</button>
+            </form>
+            <hr>
+          </div>
+          {% endfor %}
+        </div>
+        <br>
+
+        <h1>Contribute A Quote:</h1>
+        <div class="form_box">
+          <form action="{% url 'quotes:add_a_quote' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="creator" value={{ request.session.id }}>
+            Quoted By:<input type="text" name="author" autofocus>
+            Message:<input type="text" name="quote" autofocus>
+            <br>
+            <button type="submit" name="submit" value="Add">Submit</button>
+          </form>
+        </div>
+    </body>
+</html>
